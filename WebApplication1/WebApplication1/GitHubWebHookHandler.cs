@@ -36,7 +36,7 @@ namespace WebApplication1
                         }
                     }
 
-                    if (modifiedFiles.Contains("f1.txt"))
+                    if (modifiedFiles.Contains("1.txt"))
                     {
                         var mailMessage = new MailMessage
                         {
