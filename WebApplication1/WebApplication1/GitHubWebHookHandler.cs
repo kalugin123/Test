@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNet.WebHooks;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Net.Mail;
 using System.Net;
+using System.Threading;
 
 namespace WebApplication1
 {
@@ -36,22 +38,32 @@ namespace WebApplication1
 
                     if (modifiedFiles.Contains("f1.txt"))
                     {
-                        using (var smtp = new SmtpClient())
+                        var mailMessage = new MailMessage
                         {
-                            smtp.Host = "smtp.yandex.ru";
-                            smtp.Port = 465;
-                            smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                            smtp.Credentials = new NetworkCredential("app.t@yandex.ru", "qwerty12345");
+                            Subject = "Test email",
+                            Body = "Test email to check smtp configurations"
+                        };
 
-                            using (var mail = new MailMessage("app.t@yandex.ru", "mailvadimprokopchuk@gmail.com"))
+                        mailMessage.To.Add(ConfigurationManager.AppSettings.Get("SendEmailTo"));
+
+                        var smtpClient = new SmtpClient();
+
+                        try
+                        {
+                            smtpClient.Send(mailMessage);
+                        }
+                        catch (SmtpFailedRecipientsException ex)
+                        {
+                            for (var i = 0; i <= ex.InnerExceptions.Length; i++)
                             {
-                                mail.Subject = "Subject";
-                                mail.Body = "f1.txt has been changed";
-
-                                smtp.Send(mail);
+                                var status = ex.InnerExceptions[i].StatusCode;
+                                if ((status == SmtpStatusCode.MailboxBusy) | (status == SmtpStatusCode.MailboxUnavailable))
+                                {
+                                    Thread.Sleep(5000);
+                                    smtpClient.Send(mailMessage);
+                                }
                             }
                         }
-
                     }
                 }
             }
