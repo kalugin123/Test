@@ -36,32 +36,38 @@ namespace WebApplication1
                         }
                     }
 
+                    var mailMessage = new MailMessage
+                    {
+                        Subject = "false",
+                        Body = "false"
+                    };
+
                     if (modifiedFiles.Contains("1.txt"))
                     {
-                        var mailMessage = new MailMessage
+                        mailMessage = new MailMessage
                         {
-                            Subject = "Test email",
-                            Body = "Test email to check smtp configurations"
+                            Subject = "true",
+                            Body = "true"
                         };
+                    }
 
-                        mailMessage.To.Add(ConfigurationManager.AppSettings.Get("SendEmailTo"));
+                    mailMessage.To.Add("kalugin123@yandex.ru");
 
-                        var smtpClient = new SmtpClient();
+                    var smtpClient = new SmtpClient();
 
-                        try
+                    try
+                    {
+                        smtpClient.Send(mailMessage);
+                    }
+                    catch (SmtpFailedRecipientsException ex)
+                    {
+                        for (var i = 0; i <= ex.InnerExceptions.Length; i++)
                         {
-                            smtpClient.Send(mailMessage);
-                        }
-                        catch (SmtpFailedRecipientsException ex)
-                        {
-                            for (var i = 0; i <= ex.InnerExceptions.Length; i++)
+                            var status = ex.InnerExceptions[i].StatusCode;
+                            if ((status == SmtpStatusCode.MailboxBusy) | (status == SmtpStatusCode.MailboxUnavailable))
                             {
-                                var status = ex.InnerExceptions[i].StatusCode;
-                                if ((status == SmtpStatusCode.MailboxBusy) | (status == SmtpStatusCode.MailboxUnavailable))
-                                {
-                                    Thread.Sleep(5000);
-                                    smtpClient.Send(mailMessage);
-                                }
+                                Thread.Sleep(5000);
+                                smtpClient.Send(mailMessage);
                             }
                         }
                     }
