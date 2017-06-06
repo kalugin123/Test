@@ -28,11 +28,11 @@ namespace WebApplication1
                 {
                     var modifiedFiles = new List<string>();
 
-                    foreach (var commit in data.Values("commits"))
+                    foreach (var commit in data["commits"])
                     {
-                        foreach (var mod in commit.Values("modified"))
+                        foreach (var mod in ((JObject)commit)["modified"])
                         {
-                            modifiedFiles.Add(mod.Value<string>());
+                            modifiedFiles.Add((string)mod);
                         }
                     }
 
