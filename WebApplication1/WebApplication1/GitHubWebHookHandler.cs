@@ -24,7 +24,7 @@ namespace WebApplication1
                 JObject data = context.GetDataOrDefault<JObject>();
                 var branch = data.Value<string>("ref").Replace("refs/heads/", String.Empty);
 
-                if (branch.Equals("master")) 
+                if (branch.Equals("master"))  
                 {
                     var modifiedFiles = new List<string>();
 
